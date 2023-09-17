@@ -34,10 +34,7 @@ def cli(file: str, tb_limit: int, retries: int, retry_delay: int, rate: int) -> 
             Pymon(file, rate).start_monitor()
 
         except Exception as exc:
-            if not exc.__cause__:  # Sometimes a blank error is thrown
-                continue
-
-            if isinstance(exc.__cause__, ChangeDetected):
+            if isinstance(exc, ChangeDetected):
                 logger.info("change detected in file, restarting\n")
 
                 continue
