@@ -6,7 +6,7 @@ from loguru import logger
 
 from src.exc import ChangeDetected, SafeExit, UnsafeExit
 from src.pymon import Pymon
-from src.utils import get_cause, Stdout
+from src.utils import Stdout, get_cause
 
 
 @command()
@@ -43,9 +43,6 @@ def cli(file: str, tb_limit: int, retries: int, retry_delay: int, rate: int) -> 
 
             cause = get_cause(exc)
             logger.opt(exception=cause).error("an error occurred during execution")
-            # logger.opt(
-            #     f"exception raised during execution, retrying"
-            # )
 
             if isinstance(exc, UnsafeExit):
                 logger.warning(f"{exc}\n")
