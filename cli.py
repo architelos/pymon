@@ -4,21 +4,21 @@ from time import sleep
 from click import Path, command, option
 from loguru import logger
 
-from exc import ChangeDetected, UnsafeExit
-from pymon import Pymon
-from utils import Stdout
+from src.exc import ChangeDetected, SafeExit, UnsafeExit
+from src.pymon import Pymon
+from src.utils import get_cause, Stdout
 
 
 @command()
 @option("--file", type=Path(exists=True), help="File path to monitor")
-@option("--tb_limit", type=int, default=3, help="Exception traceback limit (default 3)")
+@option("--tb_limit", type=int, default=2, help="Exception traceback limit (default 2)")
 @option("--retries", type=int, default=5, help="Retry limit before exiting (default 5)")
-@option("--retry-delay", type=int, default=5, help="Delay between retries (default 5)")
+@option("--retry-delay", type=int, default=3, help="Delay between retries (default 3)")
 @option(
     "--rate",
     type=int,
-    default=2,
-    help="Rate to poll for changes in seconds (default 2)",
+    default=1,
+    help="Rate to poll for changes in seconds (default 1)",
 )
 def cli(file: str, tb_limit: int, retries: int, retry_delay: int, rate: int) -> None:
     if not "--help" in sys.argv:
@@ -41,15 +41,17 @@ def cli(file: str, tb_limit: int, retries: int, retry_delay: int, rate: int) -> 
 
             current_retries += 1
 
-            logger.opt(exception=exc.__cause__).error(
-                "exception raised during execution"
-            )
+            cause = get_cause(exc)
+            logger.opt(exception=cause).error("an error occurred during execution")
+            # logger.opt(
+            #     f"exception raised during execution, retrying"
+            # )
 
             if isinstance(exc, UnsafeExit):
-                logger.warning(str(exc) + "\n")
+                logger.warning(f"{exc}\n")
 
-            else:
-                logger.info(str(exc) + "\n")
+            elif isinstance(exc, SafeExit):
+                logger.warning(f"{exc}\n")
 
             sleep(retry_delay)
 

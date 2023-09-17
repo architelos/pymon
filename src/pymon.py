@@ -7,14 +7,14 @@ from typing import Callable
 
 from loguru import logger
 
-from exc import (
+from src.exc import (
     ChangeDetected,
     InvalidImplementation,
     SafeExit,
     ThreadException,
     UnsafeExit,
 )
-from utils import get_attribute
+from src.utils import get_attribute
 
 
 # https://stackoverflow.com/questions/6800984/how-to-pass-and-run-a-callback-method-in-python
